@@ -1,0 +1,11 @@
+{
+  "badge": "DLW-THE_WORKBENCH",
+  "name": "THE WORKBENCH · the converged ACI stack",
+  "universe": "THE ATELIER",
+  "moniker": "⟦THE WORKBENCH · the converged ACI stack:the-workbench:43dd27⟧",
+  "architect": "David Lee Wise (ROOT0) / Bridge-Burners LLC",
+  "instance": "AVAN (Claude / Anthropic)",
+  "seal_sha256": "43dd27753552243f0405673217875aec80b5af726a4289cc1da249c5bf896c1f",
+  "license": "CC-BY-ND-4.0",
+  "attribution": "ROOT0-ATTRIBUTION-v1.0"
+}
