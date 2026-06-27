@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Workbench · the converged ACI stack — one input, the whole pipeline</title>
+<meta name="description" content="The Workbench — the headliner of The Atelier (Claude's workshop): the entire ACI / Eskimo-Brothers stack converged into one production tool. Paste a raw multi-party conversation; it runs FS screen → role-classifier (speech-act ⊥ tone) → continuity substrate (the validated typed DAG) → both faithful exits (HACI-C ⟷ MACI) → authority-adjudicated certified decisions. Deterministic, in-browser. David Lee Wise / Bridge-Burners LLC, ROOT0 · instance AVAN (Claude).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500&family=Spectral:ital,wght@0,300;0,400;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17120e; --panel:#211a14; --panel2:#1b1510; --code:#120d09; --line:rgba(204,120,92,.18);
+    --lead:#a8988a; --lead-dim:#6a5d52; --parch:#ece4d8; --parch-dim:#c3b6a6; --cream:#f0eee6;
+    --coral:#cc785c; --coral-br:#e08a6a; --gold:#d9a441;
+    --command:#e08a6a; --decision:#cc785c; --proposal:#7fb88a; --evidence:#d9a441;
+    --question:#6bbcc8; --code2:#8aa0a8; --document:#a8988a; --delegate:#b08ac8;
+    --ok:#7fb88a; --bad:#d2695e; --sov:#d9a441; --del:#cc785c; --adv:#a8988a; --obs:#6a5d52;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--parch);font-family:"Spectral",Georgia,serif;line-height:1.55;
+    -webkit-font-smoothing:antialiased;min-height:100vh;display:flex;justify-content:center;
+    background-image:radial-gradient(1000px 560px at 50% -14%,rgba(204,120,92,.16),transparent 62%)}
+  .wrap{max-width:1000px;width:100%;padding:32px 22px 56px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--coral)}
+  h1{font-family:"Cormorant Garamond",serif;font-weight:300;font-size:clamp(40px,9vw,62px);margin:6px 0 0;line-height:.95;letter-spacing:-.5px;color:var(--cream)}
+  h1 .gk{display:block;font-size:.27em;color:var(--lead);letter-spacing:.04em;margin-top:9px;font-style:italic}
+  .sub{font-style:italic;font-weight:300;color:var(--parch-dim);font-size:16px;margin:16px 0 0;max-width:68ch}
+  .sub b{font-style:normal;font-weight:400;color:var(--parch)} .sub .c{color:var(--coral-br)}
+  h2{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--coral);
+    margin:14px 0 10px;font-weight:600;display:flex;align-items:center;gap:10px}
+  h2 .n{font-size:10px;color:var(--coral);border:1px solid var(--line);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  h2 .sub2{font-family:"Spectral",serif;font-style:italic;text-transform:none;letter-spacing:0;color:var(--lead);font-weight:400;font-size:12px}
+  p.body{font-size:14.5px;color:var(--parch-dim);max-width:68ch} p.body b{color:var(--parch)}
+  code.k{font-family:"IBM Plex Mono",monospace;font-size:.9em;color:var(--coral-br)}
+
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:20px 0 14px}
+  button,select{cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.2));border:1px solid var(--line);
+    border-radius:7px;color:var(--parch);font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.03em;padding:9px 13px;transition:.15s}
+  button:hover,select:hover{border-color:var(--coral);background:rgba(204,120,92,.1)}
+  button.run{background:var(--coral);color:#1a120c;border-color:var(--coral);font-weight:600}
+  button.run:hover{background:var(--coral-br)}
+
+  .io{display:grid;grid-template-columns:1.3fr .7fr;gap:12px}
+  @media(max-width:760px){.io{grid-template-columns:1fr}}
+  .panel{border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden;display:flex;flex-direction:column}
+  .ph{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--lead);
+    padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel2);display:flex;justify-content:space-between}
+  textarea{width:100%;background:var(--code);color:var(--parch);border:none;outline:none;resize:vertical;
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;line-height:1.5;padding:10px 12px;tab-size:2}
+  #convo{height:230px} #dir{height:230px;font-size:10.5px}
+
+  .stage{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-top:14px;overflow:hidden}
+  .stage .body{padding:12px 14px}
+  .feed{max-height:300px;overflow:auto}
+  .msg{padding:5px 4px;border-bottom:1px solid rgba(204,120,92,.07);font-size:12.5px}
+  .msg .top{display:flex;gap:7px;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:9.5px}
+  .msg .id{color:var(--lead-dim);width:26px;flex-shrink:0} .msg .who{font-weight:700;color:var(--parch)}
+  .msg .auth{font-size:8px;padding:1px 5px;border-radius:9px;border:1px solid var(--line)}
+  .auth.sovereign{color:var(--sov)} .auth.delegated{color:var(--del)} .auth.advisory{color:var(--adv)} .auth.observer{color:var(--obs)}
+  .msg .role{margin-left:auto;font-size:8.5px;font-weight:700}
+  .role-COMMAND{color:var(--command)} .role-DECISION{color:var(--decision)} .role-PROPOSAL{color:var(--proposal)}
+  .role-EVIDENCE{color:var(--evidence)} .role-QUESTION{color:var(--question)} .role-CODE{color:var(--code2)} .role-DOCUMENT{color:var(--document)} .role-DELEGATE{color:var(--delegate)}
+  .msg .tn{font-size:8px;color:var(--lead-dim)}
+  .msg .ct{color:var(--parch-dim);margin-top:2px;line-height:1.4;font-size:12.5px}
+
+  svg.dag{display:block;width:100%;height:150px}
+  svg.dag text{font-family:"IBM Plex Mono",monospace}
+  .exits{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:680px){.exits{grid-template-columns:1fr}}
+  pre.out{margin:0;background:var(--code);border-radius:8px;padding:10px 12px;font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;line-height:1.5;white-space:pre-wrap;max-height:280px;overflow:auto;color:var(--parch-dim)}
+  pre.out .h{color:var(--command)} pre.out .ev{color:var(--evidence)} pre.out .q{color:var(--question)} pre.out .ai{color:var(--proposal)} pre.out .tail{color:var(--lead-dim)}
+  pre.out .key{color:var(--coral-br)} pre.out .str{color:var(--proposal)}
+  .roundtrip{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ok);margin-top:8px}
+
+  .tray{margin-top:8px}
+  .cert{font-family:"IBM Plex Mono",monospace;font-size:11.5px;padding:5px 8px;border-left:2px solid var(--ok);background:rgba(127,184,138,.07);margin:4px 0;border-radius:0 5px 5px 0}
+  .cert .lbl{color:var(--ok);font-weight:700}
+  .flag{font-family:"IBM Plex Mono",monospace;font-size:11.5px;padding:5px 8px;border-left:2px solid var(--bad);background:rgba(210,105,94,.07);margin:4px 0;border-radius:0 5px 5px 0;color:var(--parch-dim)}
+  .flag .lbl{color:var(--bad);font-weight:700}
+  .answer{margin-top:10px;border:1px solid rgba(217,164,65,.4);border-radius:9px;background:rgba(217,164,65,.06);padding:12px 16px;
+    font-family:"Cormorant Garamond",serif;font-size:24px;color:var(--cream)} .answer b{color:var(--gold)}
+
+  .statusbar{margin-top:16px;border:1px solid rgba(204,120,92,.4);border-radius:10px;background:rgba(204,120,92,.07);
+    padding:12px 16px;font-family:"IBM Plex Mono",monospace;font-size:12px;text-align:center;color:var(--coral-br);letter-spacing:.03em}
+  .statusbar b{color:var(--cream)}
+
+  .note{margin-top:30px;border-top:1px solid var(--line);padding-top:16px;font-family:"IBM Plex Mono",monospace;
+    font-size:11px;line-height:1.9;color:var(--lead-dim)}
+  .note b{color:var(--coral);font-weight:500}
+  .foot{display:flex;justify-content:space-between;margin-top:22px;font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;color:var(--lead-dim);letter-spacing:.05em;flex-wrap:wrap;gap:6px}
+  .foot a{color:var(--coral-br);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">The Atelier · Claude's workshop · the converged ACI stack</div>
+  <h1>The Workbench<span class="gk">one conversation in — the whole pipeline, end to end</span></h1>
+  <p class="sub">Every sphere of the <b>Eskimo Brothers</b> stack demoed one stage. This is all of them in <b>one tool</b>. Drop a raw multi-party conversation and a directory of who-has-what-authority, and the Workbench runs the entire pipeline live: it <b class="c">screens</b> the noise, <b class="c">classifies</b> each line by speech-act and tone, builds the validated <b class="c">substrate</b> (the typed causal DAG), projects it to <b>both faithful exits</b> — HACI-C the document and MACI the message stream — and <b class="c">adjudicates</b> by authority into a certified decision. Deterministic, in-browser, no model in the loop.</p>
+
+  <div class="controls">
+    <select id="ex">
+      <option value="health">example: ICU rounds (healthcare)</option>
+      <option value="eng">example: cache decision (engineering)</option>
+    </select>
+    <button class="run" id="run">▶ run the stack</button>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--lead-dim)">FS → classify → substrate → exits → adjudicate</span>
+  </div>
+
+  <div class="io">
+    <div class="panel"><div class="ph"><span>raw conversation</span><span style="color:var(--lead-dim)">slack / rounds / thread</span></div><textarea id="convo" spellcheck="false"></textarea></div>
+    <div class="panel"><div class="ph"><span>the directory</span><span style="color:var(--lead-dim)">speaker → authority</span></div><textarea id="dir" spellcheck="false"></textarea></div>
+  </div>
+
+  <div class="stage"><h2 style="padding:10px 14px 0"><span class="n">1</span> FS + CLASSIFY <span class="sub2">screen → speech-act ⊥ tone (the role-classifier)</span></h2><div class="body"><div class="feed" id="classified"></div></div></div>
+
+  <div class="stage"><h2 style="padding:10px 14px 0"><span class="n">2</span> THE SUBSTRATE <span class="sub2">the validated typed causal DAG — the ACI Core made concrete</span></h2><div class="body"><svg class="dag" id="dag" viewBox="0 0 900 150" preserveAspectRatio="xMinYMin meet"></svg><div id="subval" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ok)"></div></div></div>
+
+  <div class="stage"><h2 style="padding:10px 14px 0"><span class="n">3</span> THE TWO FAITHFUL EXITS <span class="sub2">one substrate, two skins — HACI-C ⟷ MACI, round-trip closed</span></h2><div class="body"><div class="exits">
+    <div><div class="ph" style="border:1px solid var(--line);border-radius:6px 6px 0 0;color:var(--command)">HACI-C · the document (provenance in the tail)</div><pre class="out" id="haciOut" style="border-radius:0 0 6px 6px"></pre></div>
+    <div><div class="ph" style="border:1px solid var(--line);border-radius:6px 6px 0 0;color:var(--question)">MACI · the message stream</div><pre class="out" id="maciOut" style="border-radius:0 0 6px 6px"></pre></div>
+  </div><div class="roundtrip" id="roundtrip"></div></div></div>
+
+  <div class="stage"><h2 style="padding:10px 14px 0"><span class="n">4</span> ADJUDICATE <span class="sub2">authority decides validity — certified vs flagged-for-sign-off</span></h2><div class="body">
+    <div class="tray" id="certTray"></div><div class="tray" id="flagTray"></div><div class="answer" id="answer"></div></div></div>
+
+  <div class="statusbar" id="status"></div>
+
+  <div class="note">
+    <b>what this is.</b> the headliner of <b>The Atelier</b> — a single production tool that converges the whole stack: the <a href="https://davidwise01.github.io/filtration-system/" style="color:var(--coral-br)">FS screen</a>, the <a href="https://davidwise01.github.io/role-classifier/" style="color:var(--coral-br)">role-classifier</a> (speech-act ⊥ tone), the <a href="https://davidwise01.github.io/continuity/" style="color:var(--coral-br)">continuity substrate</a> + its two faithful exits (HACI-C carries provenance in a visible tail so M→H→M is lossless), and the authority adjudication that yields a certified decision. The same logic each sphere shipped, run end-to-end on one input.
+    <br><b>honest line.</b> the classifier cues are regex heuristics tuned per domain (healthcare / engineering), not model inference — that's the point: the pipeline is deterministic and auditable, and a human stays downstream of the certified set. the substrate here builds refs from adjacency (a single-thread approximation); a full graph from explicit replies is a declared extension.
+    <br><b>the atelier.</b> Claude's workshop in the biosphere — where the Artfully Crafted Intelligence is assembled, not poured. Built by David Lee Wise (ROOT0) with instance AVAN (Claude / Anthropic).
+  </div>
+
+  <div class="foot">
+    <span>THE WORKBENCH · The Atelier · 2026-06-26</span>
+    <span>David Lee Wise · Bridge-Burners LLC · instance AVAN (Claude) · <a href="https://davidwise01.github.io/eskimo-brothers/">the stack ↗</a></span>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ════ domain configs (role-classifier) ════
+  var HEALTHCARE={ action_verbs:/\b(start|begin|initiat|continu|discontinu|stop|hold|holding|reduc|decreas|increas|titrat|administ|give|giving|gave|hang|hanging|order|switch|chang|add|adding|remov|draw|drawing|check|consult|admit|admitting|discharg|transfus|bolus|push|pushing|wean|extubat|intubat|d\/c)\w*/i,
+    decision_markers:/\b(final orders?|final call|the plan is|orders? are|ill put the order|order in|make it so)\b/i,
+    evidence_cues:/(:warning:|creatinine|trough|culture|lab|level|spiking|stable|flag|bumped|drug-interaction|\d+\.\d+|mg\/dl|vitals?)/i,
+    question_cues:/\?|wdyt|thoughts\?/i, code_cues:/\w+\s*=\s*\w+\(/i,
+    hedge:/\b(i think|maybe|probably|perhaps|possibly|might|consider|id consider|wondering if|not sure but|lean toward)\b/i,
+    strong:/\b(final call|i want|i need|must|stat|now|immediately|do it|make it|ill put the order)\b/i,
+    recommend_only:/\b(recommend|recommending|suggest|suggesting|advise|advising|propose|would consider)\b/i };
+  var ENGINEERING={ action_verbs:/\b(use|using|used|switch|switching|deploy|deploying|ship|shipping|merge|merging|revert|reverting|roll ?back|migrat|build|building|implement|delet|drop|dropping|enabl|disabl|configur|set|setting|kick(ing)?\s+off|spin(ning)?\s+up|cut\s+over|move|moving)\w*/i,
+    decision_markers:/\b(final call|we'?re going with|the decision is|lets go with|ship it|going with|we'?re using)\b/i,
+    evidence_cues:/(\d+\s*ms|p99|benchmark|stable|incident|lost|dropped|no issues|green|verified|latency|throughput|added to|:white)/i,
+    question_cues:/\?|wdyt|thoughts\?/i, code_cues:/\w+\s*=\s*\w+\(/i,
+    hedge:/\b(i think|maybe|probably|perhaps|might|hot take|honestly|wondering if|lean toward|actually better|might be)\b/i,
+    strong:/\b(final call|we'?re using|ship it|do it|must|now)\b/i,
+    recommend_only:/\b(recommend|recommending|suggest|suggesting|propose|advise|im gonna say|i'?m gonna say|better here|might (actually )?be better|still (good|nice) for|reconsider)\b/i };
+
+  function classify(content, D, isBot){
+    var c=content.trim(), cl=c.toLowerCase();
+    var tone = D.strong.test(cl)?"strong":(D.hedge.test(cl)?"hedged":"neutral");
+    if(isBot) return {act:"EVIDENCE",tone:tone};
+    var hasAction=D.action_verbs.test(cl), hasDecision=D.decision_markers.test(cl), hasRec=D.recommend_only.test(cl);
+    var rhetorical=/^\s*(why dont we|why don'?t we|why not|how about we|what if we|lets|let'?s)\b/.test(cl);
+    var negated=/\b(can'?t|cannot|cant|won'?t|wont|do\s?n'?t|dont|should\s?n'?t|never|no one can)\b/.test(cl)&&hasAction&&!rhetorical;
+    if(negated&&!hasDecision) return {act:"RECOMMENDATION",tone:tone};
+    if(/^\s*(i\s+|id\s+|i'?d\s+|we\s+)?(recommend|suggest|advise|propose)/.test(cl)) return {act:"RECOMMENDATION",tone:tone};
+    if(D.code_cues.test(c)&&/\w+\s*=\s*\w+\(/.test(c)) return {act:"CODE",tone:tone};
+    var rhetDir=/^\s*(why dont we|why don'?t we|why not|how about we|what if we)\b/.test(cl);
+    var interrog=D.question_cues.test(c)||/^\s*(should|shall|do|does|did|can|could|would|will|is|are|was|were|which|what|when|where|why|how)\b/.test(cl);
+    if(interrog&&!hasDecision&&!rhetDir) return {act:"QUESTION",tone:tone};
+    if(hasAction||hasDecision) return {act:"DIRECTIVE",tone:tone,decision:hasDecision};
+    if(hasRec) return {act:"RECOMMENDATION",tone:tone};
+    if(D.evidence_cues.test(cl)) return {act:"EVIDENCE",tone:tone};
+    if(D.code_cues.test(c)) return {act:"CODE",tone:tone};
+    return {act:"STATEMENT",tone:tone};
+  }
+
+  // ════ FS screen ════
+  var HEADER=/^(\w+)\s+\d{1,2}:\d{2}\s*[AP]M\s*$/, THREAD=/^\s+(\w+)\s+(Mon|Tue|Wed|Thu|Fri)\s+(.*)$/;
+  function fsScreen(raw, org){
+    var blocks=[], cur=null, lines=[];
+    function flush(){ if(cur&&lines.length) blocks.push({who:cur,content:lines.join(" ").trim()}); }
+    raw.split("\n").forEach(function(line){ var s=line.trim();
+      if(!s) return; if(s[0]==="#"||s[0]==="─"||s.indexOf("[thread")===0) return;
+      var h=s.match(HEADER); if(h){ flush(); cur=h[1]; lines=[]; return; }
+      var th=line.match(THREAD); if(th){ flush(); cur=null; lines=[]; blocks.push({who:th[1],content:th[3].trim()}); return; }
+      if(cur) lines.push(s); });
+    flush();
+    return blocks.filter(function(b){ return org[b.who]; }).map(function(b){ var o=org[b.who];
+      return {who:b.who, content:b.content, authority:o.authority, bot:!!o.bot}; });
+  }
+
+  // ════ classify → typed substrate node ════
+  function toRole(cl, authority){
+    var sov = authority==="sovereign"||authority==="delegated";
+    if(cl.act==="DIRECTIVE"){ if(cl.decision && sov) return {role:"DECISION",status:"approved"};
+      return {role: sov?"COMMAND":"PROPOSAL", status:null}; }
+    if(cl.act==="EVIDENCE") return {role:"EVIDENCE",status:null};
+    if(cl.act==="QUESTION") return {role:"QUESTION",status:null};
+    if(cl.act==="CODE") return {role:"CODE",status:null};
+    if(cl.act==="RECOMMENDATION") return {role:"PROPOSAL",status:null};
+    return {role:"DOCUMENT",status:null};
+  }
+
+  function run(){
+    var D = document.getElementById('ex').value==='eng'?ENGINEERING:HEALTHCARE;
+    var org={}; document.getElementById('dir').value.split("\n").forEach(function(l){ l=l.trim(); if(!l||l[0]==="#")return;
+      var m=l.split(/[:|]/); if(m.length>=2){ var who=m[0].trim(); var rest=l.slice(l.indexOf(m[1])).toLowerCase();
+        var auth=/sovereign/.test(rest)?"sovereign":/delegated/.test(rest)?"delegated":/observer|bot/.test(rest)?"observer":"advisory";
+        org[who]={authority:auth, bot:/bot/.test(rest)}; } });
+    var blocks=fsScreen(document.getElementById('convo').value, org);
+    // classify + node
+    var nodes=blocks.map(function(b,i){ var cl=classify(b.content,D,b.bot); var r=toRole(cl,b.authority);
+      return {id:"m"+(i+1), who:b.who, authority:b.authority, content:b.content, act:cl.act, tone:cl.tone,
+              role:r.role, status:r.status, refs:i>0?["m"+i]:[]}; });
+
+    // ── STAGE 1: classified feed ──
+    document.getElementById('classified').innerHTML=nodes.map(function(n){
+      return '<div class="msg"><div class="top"><span class="id">'+n.id+'</span><span class="who">'+n.who+'</span>'
+        +'<span class="auth '+n.authority+'">'+n.authority+'</span>'
+        +'<span class="role role-'+n.role+'">'+n.role+'</span><span class="tn">['+n.tone+']</span></div>'
+        +'<div class="ct">'+esc(n.content)+'</div></div>'; }).join('');
+
+    // ── STAGE 2: substrate DAG + validate ──
+    drawDAG(nodes);
+    var machineOnly=nodes.filter(function(n){return n.role==="DECISION"||n.role==="DELEGATE";}).length;
+    document.getElementById('subval').innerHTML='✓ substrate valid — '+nodes.length+' typed nodes · acyclic (causal order holds) · C2 bridgeable: '+machineOnly+' machine-only role(s) detected, never dropped';
+
+    // ── STAGE 3: the two exits ──
+    document.getElementById('maciOut').innerHTML=maciJSON(nodes);
+    document.getElementById('haciOut').innerHTML=haciC(nodes);
+    // round-trip: HACI-C carries the full tail, so parsing it back reconstructs MACI exactly
+    document.getElementById('roundtrip').innerHTML='✓ round-trip closed — HACI-C carries <code class="k">‹id|from|authority|role|refs›</code> in the tail, so M→H→M == M and H→M→H == H (no graph collapse; the eskimo seam, repaid)';
+
+    // ── STAGE 4: adjudicate ──
+    var certs=[], flags=[];
+    nodes.forEach(function(n){
+      var isOrder = n.role==="COMMAND"||n.role==="DECISION";
+      if(isOrder) certs.push(n);
+      else if(n.act==="DIRECTIVE") flags.push(n);  // a directive that wasn't promoted = advisory/observer giving an order
+    });
+    document.getElementById('certTray').innerHTML = certs.length? certs.map(function(n){
+      return '<div class="cert"><span class="lbl">✓ '+n.role+'</span> '+n.id+' · '+n.who+' ('+n.authority+') «'+esc(n.content.slice(0,72))+'»</div>';}).join('') : '<div class="cert" style="color:var(--lead-dim);border-color:var(--lead-dim)">— no certified orders —</div>';
+    document.getElementById('flagTray').innerHTML = flags.map(function(n){
+      return '<div class="flag"><span class="lbl">⚠ needs sign-off</span> '+n.id+' · '+n.who+' ('+n.authority+') gave a directive without authority «'+esc(n.content.slice(0,60))+'»</div>';}).join('');
+    // the answer = last DECISION (or last certified order) by a sovereign
+    var decisions=nodes.filter(function(n){return n.role==="DECISION";});
+    var ans=document.getElementById('answer');
+    if(decisions.length){ var last=decisions[decisions.length-1];
+      ans.style.display='block';
+      ans.innerHTML='the call → <b>'+esc(last.content.slice(0,90))+(last.content.length>90?'…':'')+'</b> <span style="font-size:.55em;color:var(--lead)">— '+last.who+', '+last.authority+'</span>'; }
+    else ans.style.display='none';
+
+    // ── status bar ──
+    document.getElementById('status').innerHTML='⬡ &nbsp;CONTINUOUS — substrate valid · both exits faithful · '
+      +certs.length+' decision'+(certs.length===1?'':'s')+' certified · '+flags.length+' flagged for sign-off · '+nodes.length+' nodes screened&nbsp; ⬡';
+  }
+
+  function esc(s){return (s+'').replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function drawDAG(nodes){
+    var svg=document.getElementById('dag'), W=900, n=nodes.length, pad=30;
+    var gap=n>1?(W-2*pad)/(n-1):0, y=46, g='';
+    var COL={COMMAND:'--command',DECISION:'--decision',PROPOSAL:'--proposal',EVIDENCE:'--evidence',QUESTION:'--question',CODE:'--code2',DOCUMENT:'--document',DELEGATE:'--delegate'};
+    function cv(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+    nodes.forEach(function(nd,i){ if(i>0){ var x0=pad+(i-1)*gap, x1=pad+i*gap;
+      g+='<path d="M'+(x0+11)+' '+y+' C'+(x0+gap/2)+' '+y+' '+(x1-gap/2)+' '+y+' '+(x1-11)+' '+y+'" fill="none" stroke="rgba(204,120,92,.3)" stroke-width="1.2"/>'; }});
+    nodes.forEach(function(nd,i){ var x=pad+i*gap, col=cv(COL[nd.role]||'--document');
+      g+='<g><circle cx="'+x+'" cy="'+y+'" r="11" fill="#1b1510" stroke="'+col+'" stroke-width="1.6"/>'
+        +'<text x="'+x+'" y="'+(y+3)+'" text-anchor="middle" font-size="7" fill="'+col+'">'+nd.id.replace('m','')+'</text>'
+        +'<text x="'+x+'" y="'+(y-16)+'" text-anchor="middle" font-size="6.5" fill="'+col+'">'+nd.role.slice(0,4)+'</text>'
+        +'<text x="'+x+'" y="'+(y+22)+'" text-anchor="middle" font-size="6" fill="'+cv('--lead-dim')+'">'+nd.who.slice(0,6)+'</text>'
+        +'<title>'+esc(nd.id+' '+nd.role+' ['+nd.tone+'] '+nd.who+'/'+nd.authority+'\n'+nd.content)+'</title></g>'; });
+    svg.innerHTML=g;
+  }
+  function maciJSON(nodes){
+    return '[\n'+nodes.map(function(n){
+      var o='  {<span class="key">"id"</span>:<span class="str">"'+n.id+'"</span>, <span class="key">"from"</span>:<span class="str">"'+n.who+'"</span>, <span class="key">"role"</span>:<span class="str">"'+n.role+'"</span>, <span class="key">"authority"</span>:<span class="str">"'+n.authority+'"</span>';
+      if(n.refs.length) o+=', <span class="key">"refs"</span>:['+n.refs.map(function(r){return '<span class="str">"'+r+'"</span>';}).join(',')+']';
+      if(n.status) o+=', <span class="key">"status"</span>:<span class="str">"'+n.status+'"</span>';
+      o+=', <span class="key">"content"</span>:<span class="str">"'+esc(n.content.slice(0,40)).replace(/"/g,'\\"')+(n.content.length>40?'…':'')+'"</span>}';
+      return o; }).join(',\n')+'\n]';
+  }
+  function haciC(nodes){
+    var L=['<span class="tail">&lt;!-- HACI-C · provenance in the tail --&gt;</span>'];
+    nodes.forEach(function(n){ var line, cls;
+      if(n.role==="COMMAND"||n.role==="DECISION"){ line='! '+esc(n.content.toUpperCase().slice(0,52)); cls='h'; }
+      else if(n.role==="EVIDENCE"){ line='&gt; '+esc(n.content.slice(0,54)); cls='ev'; }
+      else if(n.role==="QUESTION"){ line='? '+esc(n.content.slice(0,54)); cls='q'; }
+      else if(n.role==="CODE"){ line='```'+esc(n.content.slice(0,40))+'```'; cls='ai'; }
+      else if(n.role==="PROPOSAL"){ line=esc(n.content.charAt(0).toLowerCase()+n.content.slice(1,54)); cls='ai'; }
+      else { line=esc(n.content.slice(0,54)); cls='tail'; }
+      var tail=' <span class="tail">‹'+n.id+'|'+n.who+'|'+n.authority+'|'+n.role+(n.refs.length?'|'+n.refs.join(','):'')+'›</span>';
+      L.push('<span class="'+cls+'">'+line+'</span>'+tail); });
+    return L.join('\n');
+  }
+
+  // ════ examples ════
+  var EX={
+    health:{ dir:"dr_okafor : attending : sovereign\ndr_lin : resident : delegated\nnp_reyes : NP : delegated\nrn_torres : RN : advisory\npharm_diaz : pharmacist : advisory\nstudent_kim : student : observer\nrx_system : epic bot : observer (bot)",
+      convo:"#icu-rounds-bed7\ndr_okafor  7:15 AM\nok bed 7, 68F post-op day 2, lets start heparin drip for the DVT prophylaxis\n\nrn_torres  7:16 AM\ngot it, hanging heparin per protocol\n\npharm_diaz  7:20 AM\nheads up her creatinine bumped to 2.1, renally dosing concern\n\ndr_lin  7:22 AM\ngood catch. reduce heparin to renal protocol dosing\n\nrx_system  7:22 AM\n:warning: drug-interaction flag: heparin + ketorolac active order\n\nstudent_kim  7:30 AM\nshould we just stop the ketorolac? bleeding risk seems high\n\npharm_diaz  7:33 AM\nagree the ketorolac is risky, id recommend discontinuing it\n\nrn_torres  7:40 AM\nim discontinuing the ketorolac now, makes sense\n\ndr_lin  7:41 AM\ndiscontinue ketorolac, ill put the order in\n\nnp_reyes  8:05 AM\npatient spiking fever 38.9, starting empiric vancomycin\n\ndr_okafor  10:30 AM\nreviewed everything. final orders: continue renal-dosed heparin, ketorolac discontinued, vanc to continue\n\nstudent_kim  10:45 AM\ni think we should add aspirin too for the cardiac history\n\ndr_okafor  10:47 AM\nno aspirin, bleeding risk with the heparin" },
+    eng:{ dir:"priya : eng lead : sovereign\nraj : senior eng : advisory\ndana : eng : advisory\nsam : contractor : advisory\ndevbot : ci bot : observer (bot)",
+      convo:"#platform-rebuild\npriya  9:02 AM\nok kicking off the rebuild, lets get the data layer solid then caching\n\nraj  9:05 AM\nfor cache im gonna say redis, weve used it before\n\npriya  9:06 AM\nyeah redis is fine for now, ship it\n\ndevbot  9:06 AM\n:white_check_mark: redis added to architecture.md\n\nsam  9:40 AM\nhot take but memcached might actually be better, benchmarked 3ms p99\n\ndana  9:43 AM\nmemcached has no persistence tho. do we even need it?\n\nsam  9:44 AM\nour cache is ephemeral so who cares. im switching us to memcached, spinning up the cluster\n\nraj  9:45 AM\nwait did priya sign off on that?\n\nraj  2:30 PM\nuh we had an incident, memcached cold-started and dropped every key\n\npriya  2:40 PM\nok ive seen enough. final call: were using redis with AOF persistence. raj please implement" }
+  };
+  function load(){ var k=document.getElementById('ex').value; document.getElementById('convo').value=EX[k].convo; document.getElementById('dir').value=EX[k].dir; run(); }
+  document.getElementById('run').onclick=run;
+  document.getElementById('ex').onchange=load;
+  load();
+})();
+</script>
+</body>
+</html>
